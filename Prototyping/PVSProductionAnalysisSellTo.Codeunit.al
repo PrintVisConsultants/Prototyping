@@ -32,14 +32,22 @@ codeunit 50101 "PVS Prod. Analysis SellTo"
     end;
 
     local procedure FindUniqueCaseByOrderNo(PrintVisOrderNo: Code[20]; var PVSCase: Record "PVS Case"): Boolean
+    var
+        MatchCount: Integer;
     begin
         if PrintVisOrderNo = '' then
             exit(false);
 
         PVSCase.SetCurrentKey("Order No.");
         PVSCase.SetRange("Order No.", PrintVisOrderNo);
-        if PVSCase.Count <> 1 then
+        if not PVSCase.FindSet() then
             exit(false);
+
+        repeat
+            MatchCount += 1;
+            if MatchCount > 1 then
+                exit(false);
+        until PVSCase.Next() = 0;
 
         exit(PVSCase.FindFirst());
     end;
