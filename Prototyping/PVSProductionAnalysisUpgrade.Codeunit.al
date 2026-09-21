@@ -12,7 +12,7 @@ codeunit 50103 "PVS Prod. Analysis Upgrade"
         ProductionAnalysis: Record "PrintVis Production Analysis";
         ProductionAnalysisSellTo: Codeunit "PVS Prod. Analysis SellTo";
     begin
-        if not ProductionAnalysis.FindSet() then
+        if not ProductionAnalysis.FindSet(true) then
             exit;
 
         repeat
