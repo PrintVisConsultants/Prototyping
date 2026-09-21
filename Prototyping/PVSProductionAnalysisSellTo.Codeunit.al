@@ -8,8 +8,11 @@ codeunit 50101 "PVS Prod. Analysis SellTo"
 
     [EventSubscriber(ObjectType::Table, Database::"PrintVis Production Analysis", 'OnAfterValidateEvent', 'PrintVis Order No.', false, false)]
     local procedure OnAfterValidatePrintVisOrderNo(var Rec: Record "PrintVis Production Analysis"; var xRec: Record "PrintVis Production Analysis")
+    var
+        EmptyGuid: Guid;
     begin
-        SyncSellToFields(Rec);
+        if SyncSellToFields(Rec) and (xRec.SystemId <> EmptyGuid) then
+            Rec.Modify(false);
     end;
 
     procedure SyncSellToFields(var ProductionAnalysis: Record "PrintVis Production Analysis"): Boolean
