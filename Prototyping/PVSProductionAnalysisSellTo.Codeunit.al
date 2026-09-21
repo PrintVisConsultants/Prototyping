@@ -6,9 +6,18 @@ codeunit 50101 "PVS Prod. Analysis SellTo"
         SyncSellToFields(Rec);
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::"PrintVis Production Analysis", 'OnAfterValidateEvent', 'PrintVis Order No.', false, false)]
+    local procedure OnAfterValidatePrintVisOrderNo(var Rec: Record "PrintVis Production Analysis"; var xRec: Record "PrintVis Production Analysis")
+    begin
+        SyncSellToFields(Rec);
+    end;
+
     [EventSubscriber(ObjectType::Table, Database::"PrintVis Production Analysis", 'OnBeforeModifyEvent', '', false, false)]
     local procedure OnBeforeModifyProductionAnalysis(var Rec: Record "PrintVis Production Analysis"; var xRec: Record "PrintVis Production Analysis"; RunTrigger: Boolean)
     begin
+        if Rec."PrintVis Order No." = xRec."PrintVis Order No." then
+            exit;
+
         SyncSellToFields(Rec);
     end;
 
