@@ -3,7 +3,13 @@ codeunit 50102 "PVS Prod. Analysis Install"
     Subtype = Install;
 
     trigger OnInstallAppPerCompany()
+    var
+        AppInfo: ModuleInfo;
     begin
+        NavApp.GetCurrentModuleInfo(AppInfo);
+        if AppInfo.DataVersion() <> Version.Create('0.0.0.0') then
+            exit;
+
         BackfillSellToFields();
     end;
 
