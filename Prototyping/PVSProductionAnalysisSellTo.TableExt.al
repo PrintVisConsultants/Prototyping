@@ -20,11 +20,9 @@ tableextension 50100 "PVS Production Analysis SellTo" extends "PrintVis Producti
     {
         trigger OnAfterValidate()
         var
-            EmptyGuid: Guid;
             ProductionAnalysisSellTo: Codeunit "PVS Prod. Analysis SellTo";
         begin
-            if ProductionAnalysisSellTo.SyncSellToFields(Rec) and (xRec.SystemId <> EmptyGuid) then
-                Rec.Modify(false);
+            ProductionAnalysisSellTo.SyncSellToFields(Rec);
         end;
     }
 }
