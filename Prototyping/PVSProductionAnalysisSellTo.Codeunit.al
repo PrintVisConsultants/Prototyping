@@ -38,9 +38,9 @@ codeunit 50101 "PVS Prod. Analysis SellTo"
 
         PVSCase.SetCurrentKey("Order No.");
         PVSCase.SetRange("Order No.", PrintVisOrderNo);
-        if not PVSCase.FindFirst() then
+        if PVSCase.Count <> 1 then
             exit(false);
 
-        exit(PVSCase.Next() = 0);
+        exit(PVSCase.FindFirst());
     end;
 }
