@@ -7,13 +7,6 @@ tableextension 50100 "PVS Production Analysis SellTo" extends "PrintVis Producti
         ProductionAnalysisSellTo.SyncSellToFields(Rec);
     end;
 
-    trigger OnBeforeModify()
-    var
-        ProductionAnalysisSellTo: Codeunit "PVS Prod. Analysis SellTo";
-    begin
-        ProductionAnalysisSellTo.SyncSellToFields(Rec);
-    end;
-
     fields
     {
         field(50100; "Sell-to No."; Code[20])
