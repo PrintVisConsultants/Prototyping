@@ -1,12 +1,5 @@
 tableextension 50100 "PVS Production Analysis SellTo" extends "PrintVis Production Analysis"
 {
-    trigger OnBeforeInsert()
-    var
-        ProductionAnalysisSellTo: Codeunit "PVS Prod. Analysis SellTo";
-    begin
-        ProductionAnalysisSellTo.SyncSellToFields(Rec);
-    end;
-
     fields
     {
         field(50100; "Sell-to No."; Code[20])
@@ -27,9 +20,11 @@ tableextension 50100 "PVS Production Analysis SellTo" extends "PrintVis Producti
     {
         trigger OnAfterValidate()
         var
+            EmptyGuid: Guid;
             ProductionAnalysisSellTo: Codeunit "PVS Prod. Analysis SellTo";
         begin
-            ProductionAnalysisSellTo.SyncSellToFields(Rec);
+            if ProductionAnalysisSellTo.SyncSellToFields(Rec) and (xRec.SystemId <> EmptyGuid) then
+                Rec.Modify(false);
         end;
     }
 }

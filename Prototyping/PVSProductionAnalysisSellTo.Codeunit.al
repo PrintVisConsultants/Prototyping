@@ -1,5 +1,13 @@
 codeunit 50101 "PVS Prod. Analysis SellTo"
 {
+    EventSubscriberInstance = StaticAutomatic;
+
+    [EventSubscriber(ObjectType::Table, Database::"PrintVis Production Analysis", 'OnBeforeInsertEvent', '', false, false)]
+    local procedure OnBeforeInsertProductionAnalysis(var Rec: Record "PrintVis Production Analysis"; RunTrigger: Boolean)
+    begin
+        SyncSellToFields(Rec);
+    end;
+
     procedure SyncSellToFields(var ProductionAnalysis: Record "PrintVis Production Analysis"): Boolean
     var
         PVSCase: Record "PVS Case";
