@@ -9,6 +9,9 @@ codeunit 50101 "PVS Prod. Analysis SellTo"
     [EventSubscriber(ObjectType::Table, Database::"PrintVis Production Analysis", 'OnBeforeModifyEvent', '', false, false)]
     local procedure OnBeforeModifyProductionAnalysis(var Rec: Record "PrintVis Production Analysis"; var xRec: Record "PrintVis Production Analysis"; RunTrigger: Boolean)
     begin
+        if Rec."PrintVis Order No." = xRec."PrintVis Order No." then
+            exit;
+
         SyncSellToFields(Rec);
     end;
 
@@ -33,7 +36,7 @@ codeunit 50101 "PVS Prod. Analysis SellTo"
 
     local procedure FindUniqueCaseByOrderNo(PrintVisOrderNo: Code[20]; var PVSCase: Record "PVS Case"): Boolean
     var
-        MatchCount: Integer;
+        FirstPVSCase: Record "PVS Case";
     begin
         if PrintVisOrderNo = '' then
             exit(false);
@@ -43,12 +46,11 @@ codeunit 50101 "PVS Prod. Analysis SellTo"
         if not PVSCase.FindSet() then
             exit(false);
 
-        repeat
-            MatchCount += 1;
-            if MatchCount > 1 then
-                exit(false);
-        until PVSCase.Next() = 0;
+        FirstPVSCase := PVSCase;
+        if PVSCase.Next() <> 0 then
+            exit(false);
 
-        exit(PVSCase.FindFirst());
+        PVSCase := FirstPVSCase;
+        exit(true);
     end;
 }
