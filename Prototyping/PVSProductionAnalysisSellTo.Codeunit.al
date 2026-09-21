@@ -9,7 +9,8 @@ codeunit 50101 "PVS Prod. Analysis SellTo"
     [EventSubscriber(ObjectType::Table, Database::"PrintVis Production Analysis", 'OnBeforeModifyEvent', '', false, false)]
     local procedure OnBeforeModifyProductionAnalysis(var Rec: Record "PrintVis Production Analysis"; var xRec: Record "PrintVis Production Analysis"; RunTrigger: Boolean)
     begin
-        if Rec."PrintVis Order No." = xRec."PrintVis Order No." then
+        if (Rec."PrintVis Order No." = xRec."PrintVis Order No.") and
+           ((Rec."Sell-to No." <> xRec."Sell-to No.") or (Rec."Sell-to Name" <> xRec."Sell-to Name")) then
             exit;
 
         SyncSellToFields(Rec);
