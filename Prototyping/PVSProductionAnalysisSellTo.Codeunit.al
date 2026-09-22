@@ -2,9 +2,6 @@ codeunit 50101 "PVS Prod. Analysis SellTo"
 {
     EventSubscriberInstance = StaticAutomatic;
 
-    var
-        PreviousOrderNosByRecordId: Dictionary of [Text, Code[20]];
-
     [EventSubscriber(ObjectType::Table, Database::"PrintVis Production Analysis", 'OnBeforeInsertEvent', '', false, false)]
     local procedure OnBeforeInsertProductionAnalysis(var Rec: Record "PrintVis Production Analysis"; RunTrigger: Boolean)
     begin
@@ -20,7 +17,7 @@ codeunit 50101 "PVS Prod. Analysis SellTo"
         if not RunTrigger then
             exit;
 
-        if not OrderNoChanged(Rec, xRec) then
+        if not OrderNoChanged(Rec) then
             exit;
 
         ApplySellToFields(Rec);
@@ -50,14 +47,6 @@ codeunit 50101 "PVS Prod. Analysis SellTo"
         exit(true);
     end;
 
-    procedure RememberOrderNoBeforeValidate(ProductionAnalysis: Record "PrintVis Production Analysis"; PreviousOrderNo: Code[20])
-    begin
-        if ProductionAnalysis.IsTemporary() or IsNullGuid(ProductionAnalysis.SystemId) then
-            exit;
-
-        PreviousOrderNosByRecordId.Set(GetRecordKey(ProductionAnalysis), PreviousOrderNo);
-    end;
-
     local procedure FindUniqueCaseByOrderNo(PrintVisOrderNo: Code[20]; var PVSCase: Record "PVS Case"): Boolean
     var
         FirstPVSCase: Record "PVS Case";
@@ -84,22 +73,13 @@ codeunit 50101 "PVS Prod. Analysis SellTo"
         exit(true);
     end;
 
-    local procedure OrderNoChanged(ProductionAnalysis: Record "PrintVis Production Analysis"; xProductionAnalysis: Record "PrintVis Production Analysis"): Boolean
+    local procedure OrderNoChanged(ProductionAnalysis: Record "PrintVis Production Analysis"): Boolean
     var
-        PreviousOrderNo: Code[20];
-        RecordKey: Text;
+        PersistedProductionAnalysis: Record "PrintVis Production Analysis";
+        PersistedProductionAnalysisRef: RecordRef;
     begin
-        RecordKey := GetRecordKey(ProductionAnalysis);
-        if PreviousOrderNosByRecordId.Get(RecordKey, PreviousOrderNo) then begin
-            PreviousOrderNosByRecordId.Remove(RecordKey);
-            exit(ProductionAnalysis."PrintVis Order No." <> PreviousOrderNo);
-        end;
-
-        exit(ProductionAnalysis."PrintVis Order No." <> xProductionAnalysis."PrintVis Order No.");
-    end;
-
-    local procedure GetRecordKey(ProductionAnalysis: Record "PrintVis Production Analysis"): Text
-    begin
-        exit(Format(ProductionAnalysis.RecordId));
+        PersistedProductionAnalysisRef.Get(ProductionAnalysis.RecordId);
+        PersistedProductionAnalysisRef.SetTable(PersistedProductionAnalysis);
+        exit(ProductionAnalysis."PrintVis Order No." <> PersistedProductionAnalysis."PrintVis Order No.");
     end;
 }
