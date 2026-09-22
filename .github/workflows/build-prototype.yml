@@ -117,6 +117,100 @@ jobs:
           Write-Host "Downloaded symbol packages:"
           Get-ChildItem "${{ env.PACKAGE_CACHE }}" -Filter "*.app" | Select-Object Name, Length
 
+      - name: Verify downloaded symbol package manifests
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+
+          $appFiles = Get-ChildItem "${{ env.PACKAGE_CACHE }}" -Filter "*.app" -File
+          if (-not $appFiles) {
+            throw "No .app files were found in ${{ env.PACKAGE_CACHE }} to verify."
+          }
+
+          $manifestCheckRoot = Join-Path "${{ env.OUTPUT_FOLDER }}" "manifest-check"
+          New-Item -ItemType Directory -Force -Path $manifestCheckRoot | Out-Null
+
+          $results = foreach ($appFile in $appFiles) {
+            $extractRoot = Join-Path $manifestCheckRoot $appFile.BaseName
+
+            try {
+              if (Test-Path $extractRoot) {
+                Remove-Item -Path $extractRoot -Recurse -Force
+              }
+
+              New-Item -ItemType Directory -Force -Path $extractRoot | Out-Null
+
+              $zipPath = Join-Path $extractRoot "package.zip"
+              $contentPath = Join-Path $extractRoot "content"
+              New-Item -ItemType Directory -Force -Path $contentPath | Out-Null
+
+              $appBytes = [System.IO.File]::ReadAllBytes($appFile.FullName)
+              if ($appBytes.Length -le 40) {
+                throw "Package is too small to contain the required 40-byte NAV header and zip payload."
+              }
+
+              $zipBytes = $appBytes[40..($appBytes.Length - 1)]
+              [System.IO.File]::WriteAllBytes($zipPath, $zipBytes)
+
+              [System.IO.Compression.ZipFile]::ExtractToDirectory($zipPath, $contentPath)
+
+              $manifestPath = Join-Path $contentPath "NavxManifest.xml"
+              if (-not (Test-Path $manifestPath)) {
+                throw "NavxManifest.xml was not found in the extracted package."
+              }
+
+              [xml] $manifest = Get-Content $manifestPath -Raw
+              $manifestApp = $manifest.NavxManifest.App
+              if (-not $manifestApp) {
+                throw "NavxManifest.App was not found in NavxManifest.xml."
+              }
+
+              $id = [string]$manifestApp.Id
+              $name = [string]$manifestApp.Name
+              $publisher = [string]$manifestApp.Publisher
+              $version = [string]$manifestApp.Version
+
+              if ([string]::IsNullOrWhiteSpace($id) -or
+                  [string]::IsNullOrWhiteSpace($name) -or
+                  [string]::IsNullOrWhiteSpace($publisher) -or
+                  [string]::IsNullOrWhiteSpace($version)) {
+                throw "NavxManifest.App is missing one or more required fields: Id, Name, Publisher, Version."
+              }
+
+              [pscustomobject]@{
+                File      = $appFile.Name
+                SizeBytes = $appFile.Length
+                Id        = $id
+                Name      = $name
+                Publisher = $publisher
+                Version   = $version
+                Error     = $null
+              }
+            }
+            catch {
+              [pscustomobject]@{
+                File      = $appFile.Name
+                SizeBytes = $appFile.Length
+                Id        = $null
+                Name      = $null
+                Publisher = $null
+                Version   = $null
+                Error     = $_.Exception.Message
+              }
+            }
+          }
+
+          Write-Host "Downloaded symbol package manifests:"
+          Write-Host ($results | Format-Table -AutoSize | Out-String -Width 4096)
+
+          $failedResults = $results | Where-Object { $_.Error }
+          if ($failedResults) {
+            Write-Host "Failed package manifest checks:"
+            Write-Host ($failedResults | Format-Table -AutoSize | Out-String -Width 4096)
+            throw "Failed to extract or parse one or more downloaded symbol package manifests."
+          }
+
       - name: Compile Prototyping app
         shell: pwsh
         run: |
