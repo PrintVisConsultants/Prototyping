@@ -103,7 +103,8 @@ jobs:
 
           # Required PrintVis symbols
           Download-SymbolPackage -Publisher "PrintVis A/S" -AppName "PrintVis System Library" -VersionText "28.1.2.9"
-
+          Download-SymbolPackage -Publisher "PrintVis A/S" -AppName "PrintVis" -VersionText "28.1.2.9"
+          
           # Dependencies from app.json
           if ($appJson.dependencies) {
             foreach ($dependency in $appJson.dependencies) {
