@@ -23,7 +23,7 @@ codeunit 50102 "PVS Prod. Analysis Install"
 
         repeat
             if ProductionAnalysisSellTo.SyncSellToFields(ProductionAnalysis) then
-                ProductionAnalysis.Modify(false);
+                ProductionAnalysis.Modify(true);
         until ProductionAnalysis.Next() = 0;
     end;
 }
