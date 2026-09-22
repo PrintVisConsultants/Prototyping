@@ -14,15 +14,14 @@ tableextension 50100 "PVS Production Analysis SellTo" extends "PrintVis Producti
             DataClassification = CustomerContent;
             Editable = false;
         }
-    }
-
-    modify("PrintVis Order No.")
-    {
-        trigger OnAfterValidate()
-        var
-            ProductionAnalysisSellTo: Codeunit "PVS Prod. Analysis SellTo";
-        begin
-            ProductionAnalysisSellTo.SyncSellToFields(Rec);
-        end;
+        modify("PrintVis Order No.")
+        {
+            trigger OnAfterValidate()
+            var
+                ProductionAnalysisSellTo: Codeunit "PVS Prod. Analysis SellTo";
+            begin
+                ProductionAnalysisSellTo.SyncSellToFields(Rec);
+            end;
+        }
     }
 }
