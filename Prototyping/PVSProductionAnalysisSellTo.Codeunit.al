@@ -11,18 +11,6 @@ codeunit 50101 "PVS Prod. Analysis SellTo"
         ApplySellToFields(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"PrintVis Production Analysis", 'OnBeforeModifyEvent', '', false, false)]
-    local procedure OnBeforeModifyProductionAnalysis(var Rec: Record "PrintVis Production Analysis"; var xRec: Record "PrintVis Production Analysis"; RunTrigger: Boolean)
-    begin
-        if not RunTrigger then
-            exit;
-
-        if Rec."PrintVis Order No." = xRec."PrintVis Order No." then
-            exit;
-
-        ApplySellToFields(Rec);
-    end;
-
     procedure ApplySellToFields(var ProductionAnalysis: Record "PrintVis Production Analysis")
     begin
         SyncSellToFields(ProductionAnalysis);
