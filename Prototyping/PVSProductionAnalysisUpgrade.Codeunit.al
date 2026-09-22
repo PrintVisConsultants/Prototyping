@@ -17,7 +17,7 @@ codeunit 50103 "PVS Prod. Analysis Upgrade"
 
         repeat
             if ProductionAnalysisSellTo.SyncSellToFields(ProductionAnalysis) then
-                ProductionAnalysis.Modify(true);
+                ProductionAnalysis.Modify(false);
         until ProductionAnalysis.Next() = 0;
     end;
 }

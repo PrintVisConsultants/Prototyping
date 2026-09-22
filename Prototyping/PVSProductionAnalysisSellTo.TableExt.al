@@ -20,8 +20,8 @@ tableextension 50100 "PVS Production Analysis SellTo" extends "PrintVis Producti
             var
                 ProductionAnalysisSellTo: Codeunit "PVS Prod. Analysis SellTo";
             begin
-                if ProductionAnalysisSellTo.SyncSellToFields(Rec) and not Rec.IsTemporary() and not IsNullGuid(Rec.SystemId) then
-                    Rec.Modify(true);
+                ProductionAnalysisSellTo.RememberOrderNoBeforeValidate(Rec, xRec."PrintVis Order No.");
+                ProductionAnalysisSellTo.ApplySellToFields(Rec);
             end;
         }
     }
