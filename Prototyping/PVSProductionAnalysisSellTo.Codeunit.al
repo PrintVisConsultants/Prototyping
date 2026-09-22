@@ -17,6 +17,9 @@ codeunit 50101 "PVS Prod. Analysis SellTo"
         if not RunTrigger then
             exit;
 
+        if Rec."PrintVis Order No." = xRec."PrintVis Order No." then
+            exit;
+
         ApplySellToFields(Rec);
     end;
 
