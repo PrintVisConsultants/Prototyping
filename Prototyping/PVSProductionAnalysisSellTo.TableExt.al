@@ -20,7 +20,7 @@ tableextension 50100 "PVS Production Analysis SellTo" extends "PrintVis Producti
             var
                 ProductionAnalysisSellTo: Codeunit "PVS Prod. Analysis SellTo";
             begin
-                ProductionAnalysisSellTo.SyncSellToFields(Rec);
+                ProductionAnalysisSellTo.ApplySellToFields(Rec);
             end;
         }
     }
