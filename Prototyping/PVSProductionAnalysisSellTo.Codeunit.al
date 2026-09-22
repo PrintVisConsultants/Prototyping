@@ -30,6 +30,8 @@ codeunit 50101 "PVS Prod. Analysis SellTo"
     local procedure FindUniqueCaseByOrderNo(PrintVisOrderNo: Code[20]; var PVSCase: Record "PVS Case"): Boolean
     var
         FirstPVSCase: Record "PVS Case";
+        SellToNo: Code[20];
+        SellToName: Text[100];
     begin
         if PrintVisOrderNo = '' then
             exit(false);
@@ -40,8 +42,12 @@ codeunit 50101 "PVS Prod. Analysis SellTo"
             exit(false);
 
         FirstPVSCase := PVSCase;
-        if PVSCase.Next() <> 0 then
-            exit(false);
+        SellToNo := PVSCase."Sell-To No.";
+        SellToName := PVSCase."Sell-To Name";
+
+        while PVSCase.Next() <> 0 do
+            if (PVSCase."Sell-To No." <> SellToNo) or (PVSCase."Sell-To Name" <> SellToName) then
+                exit(false);
 
         PVSCase := FirstPVSCase;
         exit(true);
